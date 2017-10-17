@@ -1,6 +1,11 @@
-var Matrix = (function () {
+var Matrix = /** @class */ (function () {
     function Matrix(matrixData, rowsLength, columnsLength) {
         if (rowsLength === void 0) { rowsLength = 1; }
+        // Aliasing
+        this.sub = this.subtract;
+        this.T = this.transpose;
+        this.eq = this.equal;
+        this.sm = this.scalarMultiply;
         if (!matrixData) {
             throw new Error("There is no spoon. (MatrixData is falsely)");
         }
@@ -16,22 +21,12 @@ var Matrix = (function () {
         this.columnsLength = columnsLength;
         this.rowsLength = rowsLength;
         if (Matrix.safe) {
-            this.data = Matrix.cloneData(matrixData);
+            this.data = Matrix._cloneData(matrixData);
         }
         else {
             this.data = matrixData;
         }
     }
-    Matrix.generateIdentityMatrix = function (size) {
-        if (!size || size <= 0) {
-            throw new Error("Invalid Matrix Size");
-        }
-        var data = new Array(size * size);
-        for (var i = 0; i < size * size; i++) {
-            data[i] = (i % (size + 1) == 0) ? 1 : 0;
-        }
-        return new Matrix(data, size, size);
-    };
     Matrix.prototype.isSquare = function () {
         return this.rowsLength == this.columnsLength;
     };
@@ -89,27 +84,54 @@ var Matrix = (function () {
         }
         return true;
     };
+    Matrix.prototype.scalarMultiply = function (num) {
+        if (typeof num != "number") {
+            throw new Error("Cannot Scalar multiply by a non number");
+        }
+        var newData = new Array(this.data.length);
+        for (var i = 0; i < this.data.length; i++) {
+            newData[i] = this.data[i] * num;
+        }
+        return new Matrix(newData, this.rowsLength, this.columnsLength);
+    };
     Matrix.prototype.isSameDimension = function (matrix) {
         return (this.columnsLength == matrix.columnsLength && this.rowsLength == matrix.rowsLength);
     };
-    ;
+    Matrix.prototype.getData = function () {
+        return Matrix.safe ? Matrix._cloneData(this.data) : this.data;
+    };
     Matrix.prototype.toString = function () {
-        var rtnString = '[\n\t  ' + this.data[0];
+        var rtnString = '\n[\n\t' + this.data[0];
         for (var i = 1; i < this.data.length; i++) {
             if (i % this.columnsLength == 0) {
                 rtnString += '\n\t';
             }
-            rtnString += ', ' + this.data[i];
+            rtnString += '\t' + ',' + this.data[i];
         }
-        return rtnString + '\n]';
+        return rtnString + '\n]\n';
     };
-    Matrix.cloneData = function (data) {
+    Matrix._cloneData = function (data) {
         var newData = new Array(data.length);
         for (var i = 0; i < data.length; i++) {
             newData[i] = data[i];
         }
         return newData;
     };
+    Matrix.generateIdentityMatrix = function (size) {
+        if (!size || size <= 0) {
+            throw new Error("Invalid Matrix Size");
+        }
+        var data = new Array(size * size);
+        for (var i = 0; i < size * size; i++) {
+            data[i] = (i % (size + 1) == 0) ? 1 : 0;
+        }
+        return new Matrix(data, size, size);
+    };
+    Matrix.isMatrix = function (obj) {
+        return !(!obj || !obj.columnsLength || !obj.rowsLength || !obj.rowsLength);
+    };
+    // The idea behind this variable is that you can set it to false and get better performance.
+    // Feature might be removed or expanded in future.
     Matrix.safe = true;
     return Matrix;
 }());

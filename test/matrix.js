@@ -4,6 +4,8 @@ var expect = require('chai').expect;
 
 describe('Matrix', function() {
 
+
+
     var vec2;
     var vec3;
     var vec4;
@@ -14,6 +16,8 @@ describe('Matrix', function() {
     var matrix4x4;
 
     beforeEach(function() {
+
+        Matrix.safe = true;
 
         vec2 = new Matrix([2,4]);
         vec3 = new Matrix([22,23,32]);
@@ -79,7 +83,7 @@ describe('Matrix', function() {
 
         it('should be able to create vector with no second and third parameter',function () {
 
-            let newMatrix = new Matrix([1,2,3]);
+            var newMatrix = new Matrix([1,2,3]);
             expect(newMatrix.data).to.deep.equal([1,2,3]);
             assert.equal(newMatrix.columnsLength,3);
             assert.equal(newMatrix.rowsLength,1);
@@ -116,7 +120,7 @@ describe('Matrix', function() {
             expect(vec2.add(vec2).add(vec2).add(vec2).add(new Matrix([-1,-1])).data).to.be.deep.equal([7,15]);
         })
 
-    })
+    });
 
     describe("#subtract()", function(){
 
@@ -142,7 +146,33 @@ describe('Matrix', function() {
             expect(vec2.subtract(vec2).subtract(vec2).subtract(vec2).subtract(new Matrix([-1,-1])).data).to.be.deep.equal([-3,-7]);
         })
 
-    })
+    });
+
+    describe("#scalarMultiply()", function(){
+
+        it('should be able to scalar muliply a 2x2 matrix',function () {
+            expect(matrix2x2.scalarMultiply(2).data).to.be.deep.equal([8,  2,  4,  6]);
+        });
+
+        it('should fail if invalid input',function(){
+            expect(function(){ matrix2x2.scalarMultiply(matrix3x1)}).to.throw(Error);
+            //expect(function(){ matrix2x2.scalarMultiply(2.3)}).to.not.throw(Error);
+            //expect(function(){ matrix2x2.scalarMultiply('matrix4x4')}).to.throw(Error);
+           // expect(function(){ vec3.scalarMultiply(vec4)}).to.throw(Error);
+        });
+
+        it('should be able to scalarMultiply 2d vectors',function () {
+            expect(vec2.scalarMultiply(-2).data).to.be.deep.equal([-4,-8]);
+        });
+
+        it('should be able to chain scalarMultiply operations together',function () {
+            //[2,4]
+            expect(vec2.scalarMultiply(1).scalarMultiply(2).scalarMultiply(3).data).to.be.deep.equal([12,24]);
+            expect(vec2.scalarMultiply(34).scalarMultiply(53).scalarMultiply(0).scalarMultiply(12334).data).to.be.deep.equal([0,0]);
+        })
+
+    });
+
     describe("#isSameDimension()", function(){
         it('should return the true if two matrices have the same dimensions',function(){
             expect(vec3.isSameDimension(vec3)).to.equal(true);
@@ -245,7 +275,7 @@ describe('Matrix', function() {
     describe('#generateIdentityMatrix()',function () {
         it("should equal to identity matrix",function () {
 
-            for(let i = 1; i<5; i++){
+            for(var i = 1; i<5; i++){
                 expect(Matrix.generateIdentityMatrix(i).isIdentity()).to.equal(true);
             }
 
@@ -264,6 +294,84 @@ describe('Matrix', function() {
             expect(function(){Matrix.generateIdentityMatrix(-1)}).to.throw(Error);
         })
 
-    })
+    });
+
+    describe('#getData',function () {
+
+        it('should be receive the correct data that it is constructed with',function () {
+
+            expect(vec2.getData()).to.deep.equal([2,4]);
+
+            expect(matrix3x1.getData()).to.deep.equal(
+                [
+                    3,
+                    2,
+                    1
+                ]);
+
+            expect(matrix2x2.getData()).to.not.deep.equal(
+                [
+                    4,  1,
+                    2,  4
+                ]);
+
+            expect(matrix2x3.getData()).to.deep.equal(
+                [
+                    2,  6,  3,
+                    5,  14, 41
+                ]
+            );
+
+            expect(matrix3x2.getData()).to.deep.equal(
+                [
+                    2,  6,
+                    3,  5,
+                    14, 41
+                ]
+            );
+
+            expect(matrix4x4.getData()).to.deep.equal(
+                [
+                    1,  2,  3,  4,
+                    5,  6,  7,  8,
+                    9,  10, 11, 12,
+                    13, 14, 15, 16
+                ]
+            );
+
+        });
+
+        it('should let user modify internal data with returned array if safe is false', function () {
+
+            Matrix.safe = false;
+
+            var internalData = vec2.getData();
+            internalData[0] = 1;
+            expect(vec2.getData()).to.deep.equal(internalData);
+
+        });
+
+        it('should not let user modify internal data with returned array if safe is false', function () {
+
+            // vec2 = new Matrix([2,4]);
+            var internalData = vec2.getData();
+            internalData[0] = 1;
+            expect(vec2.getData()).to.deep.not.equal(internalData);
+
+        })
+
+    });
+
+    describe('#aliases',function () {
+        it('verifying aliases',function () {
+
+            expect(vec2.sub).to.equal(vec2.subtract);
+            expect(vec2.T).to.equal(vec2.transpose);
+            expect(vec2.eq).to.equal(vec2.equal);
+            expect(vec2.sm).to.equal(vec2.scalarMultiply);
+            expect(vec2.sm).to.not.equal(vec2.eq);
+
+        })
+    });
 
 });

@@ -4,25 +4,9 @@ class Matrix{
     protected rowsLength:number;
     protected data:number[];
 
+    // The idea behind this variable is that you can set it to false and get better performance.
+    // Feature might be removed or expanded in future.
     static safe = true;
-
-
-
-    static generateIdentityMatrix(size:number):Matrix{
-
-        if(!size || size <= 0){
-            throw new Error("Invalid Matrix Size");
-        }
-
-        let data = new Array(size*size);
-
-        for (let i = 0; i<size*size;i++){
-            data[i] = (i%(size+1)==0) ? 1 : 0;
-        }
-
-        return new Matrix(data,size,size);
-
-    }
 
     constructor(matrixData:number[], rowsLength:number=1 , columnsLength?:number ){
 
@@ -43,7 +27,7 @@ class Matrix{
         this.rowsLength = rowsLength;
 
         if(Matrix.safe){
-            this.data = Matrix.cloneData(matrixData);
+            this.data = Matrix._cloneData(matrixData);
         }else{
             this.data = matrixData;
         }
@@ -83,6 +67,7 @@ class Matrix{
     }
 
     add(matrix:Matrix):Matrix{
+
         if(!this.isSameDimension(matrix)){
             throw new Error("Matrices need to be the same size to add.");
         }
@@ -111,7 +96,6 @@ class Matrix{
         return new Matrix(newData,this.rowsLength,this.columnsLength);
     }
 
-
     equal(matrix:Matrix):boolean{
 
         if(!this.isSameDimension(matrix)){
@@ -126,30 +110,73 @@ class Matrix{
         return true;
     }
 
+    scalarMultiply(num:number):Matrix{
+
+        if (typeof num != "number"){
+            throw new Error("Cannot Scalar multiply by a non number");
+        }
+
+        let newData = new Array(this.data.length);
+        for (let i=0 ; i<this.data.length; i++){
+            newData[i] = this.data[i]*num;
+        }
+        return new Matrix(newData,this.rowsLength,this.columnsLength);
+    }
+
     isSameDimension(matrix:Matrix):boolean{
         return (this.columnsLength == matrix.columnsLength && this.rowsLength == matrix.rowsLength);
-    };
+    }
+
+    getData():number[]{
+        return Matrix.safe ? Matrix._cloneData(this.data) : this.data;
+    }
 
     toString():string{
 
-        let rtnString = '[\n\t  '+this.data[0];
+        let rtnString = '\n[\n\t'+this.data[0];
         for (let i = 1; i < this.data.length; i++) {
            if(i%this.columnsLength==0){
                 rtnString+= '\n\t';
            }
-                rtnString+= ', '+this.data[i];
+                rtnString+= '\t'+','+this.data[i];
         }
-        return rtnString + '\n]';
+        return rtnString + '\n]\n';
     }
 
-
-    private static cloneData(data:number[]){
+    private static _cloneData(data:number[]){
         let newData = new Array(data.length);
         for (let i = 0; i < data.length; i++){
             newData[i] = data[i]
         }
         return newData;
     }
+
+    static generateIdentityMatrix(size:number):Matrix{
+
+        if(!size || size <= 0){
+            throw new Error("Invalid Matrix Size");
+        }
+
+        let data = new Array(size*size);
+
+        for (let i = 0; i<size*size;i++){
+            data[i] = (i%(size+1)==0) ? 1 : 0;
+        }
+
+        return new Matrix(data,size,size);
+
+    }
+
+    static isMatrix(obj){
+        return !(!obj || !obj.columnsLength || !obj.rowsLength || !obj.rowsLength);
+    }
+
+    // Aliasing
+    sub = this.subtract;
+    T = this.transpose;
+    eq = this.equal;
+    sm = this.scalarMultiply;
+
 
 }
 
