@@ -28,6 +28,22 @@ matrix1.m(matrix2).t().toString();
 ]
 ```
 
+#### Class Functions
+
+- isSquare():boolean
+- isIdentity():boolean
+- transpose():Matrix
+- add(matrix:Matrix):Matrix
+- subtract(matrix:Matrix):Matrix
+- equal(matrix:Matrix):boolean
+- scalarMultiply(num:number):Matrix
+- multiply(matrix:Matrix):Matrix
+- isSameDimension(matrix:Matrix):boolean
+- getData():number[]
+- toString():string
+
+Static Functions
+- generateIdentityMatrix(size:number):Matrix
 
 License
 ----
