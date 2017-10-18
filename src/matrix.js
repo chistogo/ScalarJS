@@ -6,6 +6,7 @@ var Matrix = /** @class */ (function () {
         this.T = this.transpose;
         this.eq = this.equal;
         this.sm = this.scalarMultiply;
+        this.m = this.multiply;
         if (!matrixData) {
             throw new Error("There is no spoon. (MatrixData is falsely)");
         }

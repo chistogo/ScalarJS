@@ -209,6 +209,7 @@ class Matrix{
     T = this.transpose;
     eq = this.equal;
     sm = this.scalarMultiply;
+    m = this.multiply;
 
 
 }

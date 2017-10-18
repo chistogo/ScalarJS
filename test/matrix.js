@@ -362,6 +362,16 @@ describe('Matrix', function() {
 
     });
 
+    describe('#multiply()',function () {
+        it('vec2 x vec2(T) should equal 20',function () {
+            expect(vec2.multiply(vec2.transpose())).to.deep.equal(new Matrix([20]));
+        })
+
+        it('2x2matrix x 2x2matrix should be the correct value',function () {
+            expect(matrix2x2.multiply(matrix2x2).data).to.deep.equal([18,7,14,11]);
+        })
+    });
+
     describe('#aliases',function () {
         it('verifying aliases',function () {
 
@@ -370,6 +380,7 @@ describe('Matrix', function() {
             expect(vec2.eq).to.equal(vec2.equal);
             expect(vec2.sm).to.equal(vec2.scalarMultiply);
             expect(vec2.sm).to.not.equal(vec2.eq);
+            expect(vec2.m).to.equal(vec2.multiply);
 
         })
     });
