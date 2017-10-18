@@ -16,6 +16,8 @@ var matrix2 = new Matrix([
 ],2,3);
 
 matrix1.multiply(matrix2).transpose().toString();
+// or the less readable
+matrix1.m(matrix2).t().toString();
 ```
 #### Output
 ```text
