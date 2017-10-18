@@ -21,7 +21,7 @@ var Matrix = /** @class */ (function () {
         this.columnsLength = columnsLength;
         this.rowsLength = rowsLength;
         if (Matrix.safe) {
-            this.data = Matrix._cloneData(matrixData);
+            this.data = Matrix.cloneData(matrixData);
         }
         else {
             this.data = matrixData;
@@ -94,14 +94,36 @@ var Matrix = /** @class */ (function () {
         }
         return new Matrix(newData, this.rowsLength, this.columnsLength);
     };
+    Matrix.prototype.multiply = function (matrix) {
+        if (this.columnsLength != matrix.rowsLength) {
+            throw new Error("Invalid Matrix Dimensions for a Multiplication");
+        }
+        var newMatrixData = new Array(this.rowsLength * matrix.columnsLength);
+        var newMatrixIndex = 0;
+        for (var i = 0; i < this.data.length; i = i + this.columnsLength) {
+            for (var j = 0; j < matrix.columnsLength; j++) {
+                var sum = 0;
+                var x = i;
+                var y = j;
+                while (x < this.columnsLength + i) {
+                    sum = sum + this.data[x] * matrix.data[y];
+                    x = x + 1;
+                    y = y + matrix.columnsLength;
+                }
+                newMatrixData[newMatrixIndex] = sum;
+                newMatrixIndex++;
+            }
+        }
+        return new Matrix(newMatrixData, this.rowsLength, matrix.columnsLength);
+    };
     Matrix.prototype.isSameDimension = function (matrix) {
         return (this.columnsLength == matrix.columnsLength && this.rowsLength == matrix.rowsLength);
     };
     Matrix.prototype.getData = function () {
-        return Matrix.safe ? Matrix._cloneData(this.data) : this.data;
+        return Matrix.safe ? Matrix.cloneData(this.data) : this.data;
     };
     Matrix.prototype.toString = function () {
-        var rtnString = '\n[\n\t' + this.data[0];
+        var rtnString = '\n[\n\t\t\ ' + this.data[0];
         for (var i = 1; i < this.data.length; i++) {
             if (i % this.columnsLength == 0) {
                 rtnString += '\n\t';
@@ -110,7 +132,7 @@ var Matrix = /** @class */ (function () {
         }
         return rtnString + '\n]\n';
     };
-    Matrix._cloneData = function (data) {
+    Matrix.cloneData = function (data) {
         var newData = new Array(data.length);
         for (var i = 0; i < data.length; i++) {
             newData[i] = data[i];

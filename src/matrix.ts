@@ -27,7 +27,7 @@ class Matrix{
         this.rowsLength = rowsLength;
 
         if(Matrix.safe){
-            this.data = Matrix._cloneData(matrixData);
+            this.data = Matrix.cloneData(matrixData);
         }else{
             this.data = matrixData;
         }
@@ -123,17 +123,50 @@ class Matrix{
         return new Matrix(newData,this.rowsLength,this.columnsLength);
     }
 
+    multiply(matrix:Matrix):Matrix{
+        if(this.columnsLength != matrix.rowsLength){
+            throw new Error("Invalid Matrix Dimensions for a Multiplication");
+        }
+
+        let newMatrixData = new Array(this.rowsLength*matrix.columnsLength);
+        let newMatrixIndex = 0 ;
+
+        for(let i = 0; i < this.data.length; i = i + this.columnsLength) {
+
+            for (let j = 0; j < matrix.columnsLength; j++) {
+                let sum = 0;
+                let x = i;
+                let y = j;
+
+                while (x < this.columnsLength+i) {
+                    sum = sum + this.data[x] * matrix.data[y];
+                    x = x + 1;
+                    y = y + matrix.columnsLength;
+
+                }
+                newMatrixData[newMatrixIndex] = sum;
+
+                newMatrixIndex++;
+            }
+
+
+        }
+
+        return new Matrix(newMatrixData,this.rowsLength,matrix.columnsLength);
+
+    }
+
     isSameDimension(matrix:Matrix):boolean{
         return (this.columnsLength == matrix.columnsLength && this.rowsLength == matrix.rowsLength);
     }
 
     getData():number[]{
-        return Matrix.safe ? Matrix._cloneData(this.data) : this.data;
+        return Matrix.safe ? Matrix.cloneData(this.data) : this.data;
     }
 
     toString():string{
 
-        let rtnString = '\n[\n\t'+this.data[0];
+        let rtnString = '\n[\n\t\t\ '+this.data[0];
         for (let i = 1; i < this.data.length; i++) {
            if(i%this.columnsLength==0){
                 rtnString+= '\n\t';
@@ -143,7 +176,7 @@ class Matrix{
         return rtnString + '\n]\n';
     }
 
-    private static _cloneData(data:number[]){
+    private static cloneData(data:number[]){
         let newData = new Array(data.length);
         for (let i = 0; i < data.length; i++){
             newData[i] = data[i]
