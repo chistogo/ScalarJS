@@ -35,6 +35,7 @@ matrix1.m(matrix2).t().toString();
 - transpose():Matrix
 - add(matrix:Matrix):Matrix
 - subtract(matrix:Matrix):Matrix
+- getValueA(row:number, column:number):number
 - equal(matrix:Matrix):boolean
 - scalarMultiply(num:number):Matrix
 - multiply(matrix:Matrix):Matrix
