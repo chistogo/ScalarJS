@@ -1,30 +1,30 @@
 class Matrix{
 
-    protected columnsLength:number;
-    protected rowsLength:number;
+    protected columnsCount:number;
+    protected rowsCount:number;
     protected data:number[];
 
     // The idea behind this variable is that you can set it to false and get better performance.
     // Feature might be removed or expanded in future.
     static safe = true;
 
-    constructor(matrixData:number[], rowsLength:number=1 , columnsLength?:number ){
+    constructor(matrixData:number[], rowCount:number=1 , columnCount?:number ){
 
         if (!matrixData){
             throw new Error("There is no spoon. (MatrixData is falsely)");
         }
-        if(!columnsLength){
-            columnsLength = matrixData.length;
+        if(!columnCount){
+            columnCount = matrixData.length;
         }
-        if(columnsLength <= 0 || rowsLength <= 0){
+        if(columnCount <= 0 || rowCount <= 0){
             throw new Error("Invalid Length of a matrix");
         }
-        if(rowsLength*columnsLength != matrixData.length ){
+        if(rowCount*columnCount != matrixData.length ){
             throw new Error("Invalid Matrix Size");
         }
 
-        this.columnsLength = columnsLength;
-        this.rowsLength = rowsLength;
+        this.columnsCount = columnCount;
+        this.rowsCount = rowCount;
 
         if(Matrix.safe){
             this.data = Matrix.cloneData(matrixData);
@@ -35,7 +35,7 @@ class Matrix{
     }
 
     isSquare():boolean{
-        return this.rowsLength == this.columnsLength;
+        return this.rowsCount == this.columnsCount;
     }
 
     isIdentity():boolean{
@@ -44,7 +44,7 @@ class Matrix{
         }
 
         for (let i = 0; i<this.data.length;i++) {
-            let value = (i%(this.rowsLength+1)==0) ? 1 : 0;
+            let value = (i%(this.rowsCount+1)==0) ? 1 : 0;
             if(this.data[i] != value){
                 return false;
             }
@@ -56,13 +56,13 @@ class Matrix{
     transpose():Matrix{
         let data = Array(this.data.length);
         let index = 0;
-        for (let i = 0; i < this.columnsLength; i++) {
-            for (let j = 0; j < this.data.length; j+= this.columnsLength) {
+        for (let i = 0; i < this.columnsCount; i++) {
+            for (let j = 0; j < this.data.length; j+= this.columnsCount) {
                 data[index] = this.data[i+j];
                 index++;
             }
         }
-        return new Matrix(data,this.columnsLength,this.rowsLength);
+        return new Matrix(data,this.columnsCount,this.rowsCount);
 
     }
 
@@ -78,7 +78,7 @@ class Matrix{
             newData[i] = this.data[i] + matrix.data[i];
         }
 
-        return new Matrix(newData,this.rowsLength,this.columnsLength);
+        return new Matrix(newData,this.rowsCount,this.columnsCount);
 
     }
 
@@ -93,7 +93,7 @@ class Matrix{
         for(let i = 0 ; i<this.data.length;i++){
             newData[i] = this.data[i] - matrix.data[i];
         }
-        return new Matrix(newData,this.rowsLength,this.columnsLength);
+        return new Matrix(newData,this.rowsCount,this.columnsCount);
     }
 
     equal(matrix:Matrix):boolean{
@@ -120,28 +120,28 @@ class Matrix{
         for (let i=0 ; i<this.data.length; i++){
             newData[i] = this.data[i]*num;
         }
-        return new Matrix(newData,this.rowsLength,this.columnsLength);
+        return new Matrix(newData,this.rowsCount,this.columnsCount);
     }
 
     multiply(matrix:Matrix):Matrix{
-        if(this.columnsLength != matrix.rowsLength){
+        if(this.columnsCount != matrix.rowsCount){
             throw new Error("Invalid Matrix Dimensions for a Multiplication");
         }
 
-        let newMatrixData = new Array(this.rowsLength*matrix.columnsLength);
+        let newMatrixData = new Array(this.rowsCount*matrix.columnsCount);
         let newMatrixIndex = 0 ;
 
-        for(let i = 0; i < this.data.length; i = i + this.columnsLength) {
+        for(let i = 0; i < this.data.length; i = i + this.columnsCount) {
 
-            for (let j = 0; j < matrix.columnsLength; j++) {
+            for (let j = 0; j < matrix.columnsCount; j++) {
                 let sum = 0;
                 let x = i;
                 let y = j;
 
-                while (x < this.columnsLength+i) {
+                while (x < this.columnsCount+i) {
                     sum = sum + this.data[x] * matrix.data[y];
                     x = x + 1;
-                    y = y + matrix.columnsLength;
+                    y = y + matrix.columnsCount;
 
                 }
                 newMatrixData[newMatrixIndex] = sum;
@@ -152,12 +152,23 @@ class Matrix{
 
         }
 
-        return new Matrix(newMatrixData,this.rowsLength,matrix.columnsLength);
+        return new Matrix(newMatrixData,this.rowsCount,matrix.columnsCount);
 
     }
 
     isSameDimension(matrix:Matrix):boolean{
-        return (this.columnsLength == matrix.columnsLength && this.rowsLength == matrix.rowsLength);
+        return (this.columnsCount == matrix.columnsCount && this.rowsCount == matrix.rowsCount);
+    }
+
+    getValue(row:number, column:number):number{
+        return this.getValueA(row-1,column-1)
+    }
+
+    getValueA(row:number, column:number):number{
+        if(row>=this.rowsCount || column>=this.columnsCount || row<0 || column<0){
+            throw new Error('Matrix out of bound');
+        }
+        return this.data[(row)*(this.columnsCount)+column];
     }
 
     getData():number[]{
@@ -168,7 +179,7 @@ class Matrix{
 
         let rtnString = '\n[\n\t\t\ '+this.data[0];
         for (let i = 1; i < this.data.length; i++) {
-           if(i%this.columnsLength==0){
+           if(i%this.columnsCount==0){
                 rtnString+= '\n\t';
            }
                 rtnString+= '\t'+','+this.data[i];
@@ -200,13 +211,14 @@ class Matrix{
 
     }
 
-    static isMatrix(obj){
-        return !(!obj || !obj.columnsLength || !obj.rowsLength || !obj.rowsLength);
+    public static isMatrix(obj){
+        return !(!obj || !obj.columnsCount || !obj.rowsCount || !obj.rowsCount);
     }
 
     // Aliasing
     sub = this.subtract;
     T = this.transpose;
+    t = this.transpose;
     eq = this.equal;
     sm = this.scalarMultiply;
     m = this.multiply;

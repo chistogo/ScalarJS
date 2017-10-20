@@ -4,8 +4,6 @@ var expect = require('chai').expect;
 
 describe('Matrix', function() {
 
-
-
     var vec2;
     var vec3;
     var vec4;
@@ -85,13 +83,13 @@ describe('Matrix', function() {
 
             var newMatrix = new Matrix([1,2,3]);
             expect(newMatrix.data).to.deep.equal([1,2,3]);
-            assert.equal(newMatrix.columnsLength,3);
-            assert.equal(newMatrix.rowsLength,1);
+            assert.equal(newMatrix.columnsCount,3);
+            assert.equal(newMatrix.rowsCount,1);
 
             newMatrix = new Matrix([1,2,3],1);
             expect(newMatrix.data).to.deep.equal([1,2,3]);
-            assert.equal(newMatrix.columnsLength,3);
-            assert.equal(newMatrix.rowsLength,1);
+            assert.equal(newMatrix.columnsCount,3);
+            assert.equal(newMatrix.rowsCount,1);
 
         });
 
@@ -377,6 +375,7 @@ describe('Matrix', function() {
 
             expect(vec2.sub).to.equal(vec2.subtract);
             expect(vec2.T).to.equal(vec2.transpose);
+            expect(vec2.t).to.equal(vec2.transpose);
             expect(vec2.eq).to.equal(vec2.equal);
             expect(vec2.sm).to.equal(vec2.scalarMultiply);
             expect(vec2.sm).to.not.equal(vec2.eq);
@@ -384,5 +383,96 @@ describe('Matrix', function() {
 
         })
     });
+
+    describe('#getValue',function () {
+        it('should be receive every value in a 2d vector',function () {
+
+            expect(vec2.getValue(1,1)).to.equal(2);
+            expect(vec2.getValue(1,2)).to.equal(4);
+
+        });
+        it('should be receive every value in a 2x2 matrix',function () {
+
+            expect(matrix2x2.getValue(1,1)).to.equal(4);
+            expect(matrix2x2.getValue(1,2)).to.equal(1);
+            expect(matrix2x2.getValue(2,1)).to.equal(2);
+            expect(matrix2x2.getValue(2,2)).to.equal(3);
+
+        });
+
+        it('should throw error when invalid input is given', function () {
+            expect(function () {
+                matrix2x2.getValue(0,-1)
+            }).to.throw(Error);
+
+            expect(function () {
+                matrix2x2.getValue(-1,1)
+            }).to.throw(Error);
+
+            expect(function () {
+                matrix2x2.getValue(0,0)
+            }).to.throw(Error);
+
+            expect(function () {
+                matrix2x2.getValue(2,3)
+            }).to.throw(Error);
+
+            expect(function () {
+                matrix2x2.getValue(0,3)
+            }).to.throw(Error);
+
+            expect(function () {
+                matrix2x2.getValue(3,1)
+            }).to.throw(Error);
+
+        })
+
+    })
+
+    describe('#getValueA',function () {
+        it('should be receive every value in a 2d vector',function () {
+
+            expect(vec2.getValueA(0,0)).to.equal(2);
+            expect(vec2.getValueA(0,1)).to.equal(4);
+
+        });
+
+        it('should be receive every value in a 2x2 matrix',function () {
+
+            expect(matrix2x2.getValueA(0,0)).to.equal(4);
+            expect(matrix2x2.getValueA(0,1)).to.equal(1);
+            expect(matrix2x2.getValueA(1,0)).to.equal(2);
+            expect(matrix2x2.getValueA(1,1)).to.equal(3);
+
+        });
+
+        it('should throw error when invalid input is given', function () {
+            expect(function () {
+                matrix2x2.getValueA(0,-1)
+            }).to.throw(Error);
+
+            expect(function () {
+                matrix2x2.getValueA(-1,1)
+            }).to.throw(Error);
+
+            expect(function () {
+                matrix2x2.getValueA(2,2)
+            }).to.throw(Error);
+
+            expect(function () {
+                matrix2x2.getValueA(2,3)
+            }).to.throw(Error);
+
+            expect(function () {
+                matrix2x2.getValueA(0,2)
+            }).to.throw(Error);
+
+            expect(function () {
+                matrix2x2.getValueA(2,1)
+            }).to.throw(Error);
+
+        })
+
+    })
 
 });

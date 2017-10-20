@@ -1,26 +1,27 @@
 var Matrix = /** @class */ (function () {
-    function Matrix(matrixData, rowsLength, columnsLength) {
-        if (rowsLength === void 0) { rowsLength = 1; }
+    function Matrix(matrixData, rowCount, columnCount) {
+        if (rowCount === void 0) { rowCount = 1; }
         // Aliasing
         this.sub = this.subtract;
         this.T = this.transpose;
+        this.t = this.transpose;
         this.eq = this.equal;
         this.sm = this.scalarMultiply;
         this.m = this.multiply;
         if (!matrixData) {
             throw new Error("There is no spoon. (MatrixData is falsely)");
         }
-        if (!columnsLength) {
-            columnsLength = matrixData.length;
+        if (!columnCount) {
+            columnCount = matrixData.length;
         }
-        if (columnsLength <= 0 || rowsLength <= 0) {
+        if (columnCount <= 0 || rowCount <= 0) {
             throw new Error("Invalid Length of a matrix");
         }
-        if (rowsLength * columnsLength != matrixData.length) {
+        if (rowCount * columnCount != matrixData.length) {
             throw new Error("Invalid Matrix Size");
         }
-        this.columnsLength = columnsLength;
-        this.rowsLength = rowsLength;
+        this.columnsCount = columnCount;
+        this.rowsCount = rowCount;
         if (Matrix.safe) {
             this.data = Matrix.cloneData(matrixData);
         }
@@ -29,14 +30,14 @@ var Matrix = /** @class */ (function () {
         }
     }
     Matrix.prototype.isSquare = function () {
-        return this.rowsLength == this.columnsLength;
+        return this.rowsCount == this.columnsCount;
     };
     Matrix.prototype.isIdentity = function () {
         if (!this.isSquare()) {
             return false;
         }
         for (var i = 0; i < this.data.length; i++) {
-            var value = (i % (this.rowsLength + 1) == 0) ? 1 : 0;
+            var value = (i % (this.rowsCount + 1) == 0) ? 1 : 0;
             if (this.data[i] != value) {
                 return false;
             }
@@ -46,13 +47,13 @@ var Matrix = /** @class */ (function () {
     Matrix.prototype.transpose = function () {
         var data = Array(this.data.length);
         var index = 0;
-        for (var i = 0; i < this.columnsLength; i++) {
-            for (var j = 0; j < this.data.length; j += this.columnsLength) {
+        for (var i = 0; i < this.columnsCount; i++) {
+            for (var j = 0; j < this.data.length; j += this.columnsCount) {
                 data[index] = this.data[i + j];
                 index++;
             }
         }
-        return new Matrix(data, this.columnsLength, this.rowsLength);
+        return new Matrix(data, this.columnsCount, this.rowsCount);
     };
     Matrix.prototype.add = function (matrix) {
         if (!this.isSameDimension(matrix)) {
@@ -62,7 +63,7 @@ var Matrix = /** @class */ (function () {
         for (var i = 0; i < this.data.length; i++) {
             newData[i] = this.data[i] + matrix.data[i];
         }
-        return new Matrix(newData, this.rowsLength, this.columnsLength);
+        return new Matrix(newData, this.rowsCount, this.columnsCount);
     };
     Matrix.prototype.subtract = function (matrix) {
         if (!this.isSameDimension(matrix)) {
@@ -72,7 +73,7 @@ var Matrix = /** @class */ (function () {
         for (var i = 0; i < this.data.length; i++) {
             newData[i] = this.data[i] - matrix.data[i];
         }
-        return new Matrix(newData, this.rowsLength, this.columnsLength);
+        return new Matrix(newData, this.rowsCount, this.columnsCount);
     };
     Matrix.prototype.equal = function (matrix) {
         if (!this.isSameDimension(matrix)) {
@@ -93,32 +94,41 @@ var Matrix = /** @class */ (function () {
         for (var i = 0; i < this.data.length; i++) {
             newData[i] = this.data[i] * num;
         }
-        return new Matrix(newData, this.rowsLength, this.columnsLength);
+        return new Matrix(newData, this.rowsCount, this.columnsCount);
     };
     Matrix.prototype.multiply = function (matrix) {
-        if (this.columnsLength != matrix.rowsLength) {
+        if (this.columnsCount != matrix.rowsCount) {
             throw new Error("Invalid Matrix Dimensions for a Multiplication");
         }
-        var newMatrixData = new Array(this.rowsLength * matrix.columnsLength);
+        var newMatrixData = new Array(this.rowsCount * matrix.columnsCount);
         var newMatrixIndex = 0;
-        for (var i = 0; i < this.data.length; i = i + this.columnsLength) {
-            for (var j = 0; j < matrix.columnsLength; j++) {
+        for (var i = 0; i < this.data.length; i = i + this.columnsCount) {
+            for (var j = 0; j < matrix.columnsCount; j++) {
                 var sum = 0;
                 var x = i;
                 var y = j;
-                while (x < this.columnsLength + i) {
+                while (x < this.columnsCount + i) {
                     sum = sum + this.data[x] * matrix.data[y];
                     x = x + 1;
-                    y = y + matrix.columnsLength;
+                    y = y + matrix.columnsCount;
                 }
                 newMatrixData[newMatrixIndex] = sum;
                 newMatrixIndex++;
             }
         }
-        return new Matrix(newMatrixData, this.rowsLength, matrix.columnsLength);
+        return new Matrix(newMatrixData, this.rowsCount, matrix.columnsCount);
     };
     Matrix.prototype.isSameDimension = function (matrix) {
-        return (this.columnsLength == matrix.columnsLength && this.rowsLength == matrix.rowsLength);
+        return (this.columnsCount == matrix.columnsCount && this.rowsCount == matrix.rowsCount);
+    };
+    Matrix.prototype.getValue = function (row, column) {
+        return this.getValueA(row - 1, column - 1);
+    };
+    Matrix.prototype.getValueA = function (row, column) {
+        if (row >= this.rowsCount || column >= this.columnsCount || row < 0 || column < 0) {
+            throw new Error('Matrix out of bound');
+        }
+        return this.data[(row) * (this.columnsCount) + column];
     };
     Matrix.prototype.getData = function () {
         return Matrix.safe ? Matrix.cloneData(this.data) : this.data;
@@ -126,7 +136,7 @@ var Matrix = /** @class */ (function () {
     Matrix.prototype.toString = function () {
         var rtnString = '\n[\n\t\t\ ' + this.data[0];
         for (var i = 1; i < this.data.length; i++) {
-            if (i % this.columnsLength == 0) {
+            if (i % this.columnsCount == 0) {
                 rtnString += '\n\t';
             }
             rtnString += '\t' + ',' + this.data[i];
@@ -151,7 +161,7 @@ var Matrix = /** @class */ (function () {
         return new Matrix(data, size, size);
     };
     Matrix.isMatrix = function (obj) {
-        return !(!obj || !obj.columnsLength || !obj.rowsLength || !obj.rowsLength);
+        return !(!obj || !obj.columnsCount || !obj.rowsCount || !obj.rowsCount);
     };
     // The idea behind this variable is that you can set it to false and get better performance.
     // Feature might be removed or expanded in future.
